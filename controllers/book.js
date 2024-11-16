@@ -40,7 +40,7 @@ exports.modifyBook = (req, res, next) => {
   Book.findOne({ _id: req.params.id })
     .then((book) => {
       if (book.userId != req.auth.userId) {
-        return res.status(401).json({ message: "Non autorisé" });
+        return res.status(403).json({ message: "Non autorisé" });
       }
       if (req.file) {
         const oldFilename = book.imageUrl.split("/images/")[1];
@@ -66,7 +66,7 @@ exports.deleteBook = (req, res, next) => {
   Book.findOne({ _id: req.params.id })
     .then((book) => {
       if (book.userId != req.auth.userId) {
-        res.status(401).json({ message: "Non autorisé" });
+        res.status(403).json({ message: "Non autorisé" });
       } else {
         const filename = book.imageUrl.split("/images/")[1];
         fs.unlink(`images/${filename}`, () => {
@@ -103,7 +103,7 @@ exports.rateBook = (req, res, next) => {
       );
       if (userAlreadyRated) {
         return res
-          .status(401)
+          .status(403)
           .json({ message: "Votre note ne peut pas être changée" });
       } else {
         const rating = { userId: req.auth.userId, grade: req.body.rating };

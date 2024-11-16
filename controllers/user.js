@@ -1,8 +1,25 @@
 const bcrypt = require("bcrypt");
 const User = require("../models/user");
 const jwt = require("jsonwebtoken");
+const owasp = require("owasp-password-strength-test");
 
 exports.signup = (req, res, next) => {
+  owasp.config({
+    allowPassphrases: true,
+    maxLength: 20,
+    minLength: 10,
+    minOptionalTestsToPass: 4,
+  });
+  const password = req.body.password;
+  const result = owasp.test(password);
+  if (!result.strong) {
+    console.error("Weak password error:", result.errors);
+    return res.status(400).json({
+      message:
+        "Le mot de passe doit avoir entre 10 et 20 caractères en majuscule et minuscule ainsi que des chiffres",
+      errors: result.errors,
+    });
+  }
   bcrypt
     .hash(req.body.password, 10)
     .then((hash) => {
